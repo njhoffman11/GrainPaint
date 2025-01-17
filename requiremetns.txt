@@ -2,3 +2,5 @@ numpy
 matplotlib
 diffusers[torch]
 vtk
+scikit-learn
+tqdm
