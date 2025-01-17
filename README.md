@@ -5,7 +5,7 @@ The dataset used to train GrainPaint is available at https://zenodo.org/record/8
 2. Follow these instruction to install pytorch https://pytorch.org/get-started/locally/
 3. Run `pip install -r requirements.txt` to install the rest of the dependencies.
 # Training
-We provide the modeles we used in our paper in the model_chekpoints folder, so training a model is not necessacary if you want to use one of our pre-trained models. 
+We provide the modeles we used in our paper in the model_chekpoints folder, so training a model is not necessary if you want to use one of our pre-trained models. 
 A model can be trained using train_ddm_diffusers32.ipynb
 A batch size of 8 fits in 24GB of memory, if you have less you should reduce batch_size.
 # Generation
