@@ -15,3 +15,9 @@ ddm32_big_250.ckpt is the model trained on isotropic grain structures, ddm32_big
 We provide a generation_plan variable in generation_32_aniso.py that can be used to switch the generation plan between 'grid' and 'center'
 'grid' is recommended for isotropic microstructures, 'center' is recommended for anisotropic microstructures.
 You will need to update the range for run_num when running the script multiple times.
+# Analysis
+We provide our analysis scripts in the analysis folder. compareMsStats2.py contains functions 
+to calculate grain volume and orientation statistics, and compareMsStats2_centroid_dist.py contains 
+functions to calculate the centroid distance statistics. Please note that the reEnumerate
+function must be run on microstructures before analysis. HDBscan_para.py must be run on the output of 
+diffusion model to segment the grains before the statistics can be analysed. 
