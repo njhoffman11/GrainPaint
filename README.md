@@ -1,8 +1,8 @@
 # GrainPaint
-This is the repository for our article "GrainPaint: A multi-scale diffusion-based generative model for microstructure reconstruction of large-scale objects" availible online [here](https://doi.org/10.1016/j.actamat.2025.120784).
+This is the repository for our article "GrainPaint: A multi-scale diffusion-based generative model for microstructure reconstruction of large-scale objects" available online [here](https://doi.org/10.1016/j.actamat.2025.120784).
 The dataset used to train GrainPaint is available at https://zenodo.org/record/8241535
 # Installation
-1. Clone the repository
+1. Clone the repository.
 2. Create and activate a new python environment. Tested with Python 3.13.
 3. Run `pip install -r requirements.txt` to install the dependencies.
 # Training
