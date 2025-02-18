@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 from math import ceil, floor
-import pickle
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import numpy as np
 
@@ -77,7 +76,6 @@ def plot_cubes(batches, window_size, lims):
     ax.set_zlabel('Z')
 
     # Adjust the scale of the plot to fit the data
-
     ax.auto_scale_xyz([0,lims[0]], 
                       [0,lims[1]], 
                       [0,lims[2]])
@@ -85,8 +83,6 @@ def plot_cubes(batches, window_size, lims):
     plt.tight_layout()
     plt.show()
     
-    # plt.savefig('step6.svg', format='svg', bbox_inches='tight')
-
 def get_next_tiles(tile_list, existing_tiles, max_batch):
     batch = []
     for tile in tile_list:
@@ -353,27 +349,14 @@ def gen_center(shape_px, window_size, max_batch):
     y_len_round = multiple *ceil(y_len_pixels / multiple)
     z_len_round = multiple *ceil(z_len_pixels / multiple)
     shape = (round((x_len_round-16)/16), round((y_len_round-16)/16), round((z_len_round-16)/16))
-    # tile_list = checker1(shape)
     tile_list = place_center(shape)
-    
     tile_list = gen_cross(tile_list, shape)
     tile_list = gen_cross2(tile_list, shape, 2)
-   
-
-
     tile_list = gen_diags(tile_list, shape, 1.5)
     tile_list = gen_corners(tile_list, shape)
 
-    # tile_list = gen_diag_infill(tile_list, shape, 1.5)
-    # tile_list = gen_diag_up(tile_list, shape, 3)
-    # tile_list = gen_diagsx(tile_list, shape, 2)
-
-    
-    
-
     existing_tiles = []
     batches = []
-    # batches.append([initial_tile])
     while True:
         batch, existing_tiles = get_next_tiles(tile_list, existing_tiles, max_batch)
         if not batch:
@@ -397,13 +380,8 @@ def gen_grid(shape_px, window_size, max_batch):
     tile_list, pt2 = checker2_1(tile_list, pt2, shape)
     tile_list = checker3(tile_list, pt2, shape)
     tile_list = checker3_1(tile_list, pt2, shape)
-
-    # tile_list = gen_top_row(initial_tile, shape)
-    # tile_list, columns = gen_column(tile_list, shape)
-    # tile_list = gen_infill_column(tile_list, shape, columns)
     existing_tiles = []
     batches = []
-    # batches.append([initial_tile])
     while True:
         batch, existing_tiles = get_next_tiles(tile_list, existing_tiles, max_batch)
         if not batch:
@@ -417,31 +395,7 @@ def batch_to_coords(batch, window_size):
         coords.append((int(tile.x*window_size/2), int(tile.y*window_size/2), int(tile.z*window_size/2)))
     return coords
 
-# window_size = 16
-# initial_tile = Tile(0, 0)
-# max_batch = 16
-# x_len_pixels = 125
-# y_len_pixels = 80
-# multiple = window_size/2
-# x_len_round = multiple *ceil(x_len_pixels / multiple)
-# y_len_round = multiple *ceil(y_len_pixels / multiple)
-# shape = (round((x_len_round-8)/8), round((y_len_round-8)/8))
-
-
-# tile_list = gen_top_row(initial_tile, shape)
-# tile_list, columns = gen_column(tile_list, shape)
-# tile_list = gen_infill_column(tile_list, shape, columns)
-# existing_tiles = [initial_tile]
-# batches = []
-# while True:
-#     batch, existing_tiles = get_next_tiles(tile_list, existing_tiles, max_batch)
-#     if not batch:
-#         break
-#     batches.append(batch)
-# batches = gen_2d((100, 100, 100), 32, 24)
-# print(batches[1])
-
-
+# Note:
 # gear 250,250,150
 # helical 280,280,150
 # turbo-blade 320, 320, 150

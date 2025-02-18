@@ -14,19 +14,17 @@
 
 """
 
-import glob, os, time
+import time
 import numpy as np
 # from utils import *
 from sklearn.cluster import DBSCAN
 # import pyvista
-from scipy.spatial.distance import pdist,squareform
 import seaborn as sns
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 plt.rcParams.update({'font.size': 24})
 from scipy.stats import gaussian_kde, entropy
 from multiprocessing import Pool
-from tqdm import tqdm
 import matplotlib.colors as mcolors
 import random
 import pandas as pd
@@ -78,7 +76,7 @@ def reEnumerate(ms):
             print(f'Segregating grains for grainId {grainId} out of {maxGrainId}...')
 
     # Reorder
-    print(f'Re-enumerating microstructure ... ', end='')
+    print('Re-enumerating microstructure ... ', end='')
     grainIdList = np.sort(np.unique(ms))
     for i in range(len(grainIdList)):
         grainId = grainIdList[i]
@@ -86,7 +84,7 @@ def reEnumerate(ms):
         x,y,z = np.where(ms==grainId)
         for j in range(x.shape[0]):
             ms[x[j],y[j],z[j]] = i
-    print(f'Done!')
+    print('Done!')
     return ms
 
 def mvee(points, tol=0.0001):
@@ -140,7 +138,7 @@ def fitEllipsoid(ms):
         tmpDim = np.sort([A[0,0], A[1,1], A[2,2]])
         msDescList += [[tmpDim[0], tmpDim[1], tmpDim[2]]]
         print(f'Done fitting grain {grainId} out of {maxGrainId}...')
-    print(f'Done fitting ellipsoids for all grains!')
+    print('Done fitting ellipsoids for all grains!')
     msDescList = np.array(msDescList)
     return msDescList
 
@@ -204,7 +202,7 @@ def computeGrainSizePdf(ms):
         if grainId % 100 == 0 and maxGrainId> 1000:
             print(f'Collecting stats on grain {grainId} out of {maxGrainId}...')
             
-    print(f'Done computing grain size pdf!')
+    print('Done computing grain size pdf!')
     return grainSizeList
 
 def reSampleGrainSize(grainSizeList,size=10000):
@@ -609,7 +607,7 @@ if __name__ == '__main__':
     main_volume(generated_geo, spparks_geo)
     # main_aspect_ratio(generated_geo, spparks_geo)
     tStop = time.time()
-    print(f'Total time: %.2f' % (tStop - tStart))
+    print('Total time: %.2f' % (tStop - tStart))
 
 
 

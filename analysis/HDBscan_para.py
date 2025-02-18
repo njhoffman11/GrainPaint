@@ -1,7 +1,6 @@
 import numpy as np
 from sklearn.cluster import DBSCAN
 # from cuml.cluster import DBSCAN
-import os
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 from multiprocessing import Pool 
@@ -9,7 +8,6 @@ from collections import Counter
 from random import choice
 import random
 from glob import glob
-import pickle
 
 def replace_with_neighbors(arr):
     # Define the 6-connectivity relative positions
@@ -127,7 +125,6 @@ def remap_labels(segmented_sub_volumes):
         remapped_sub_volumes.append(sub_volume)
     return remapped_sub_volumes, label_offset
 
-import numpy as np
 
 def is_grain_touching_edge(grain, sub_volume_shape):
     """

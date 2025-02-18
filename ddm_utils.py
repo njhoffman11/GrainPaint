@@ -11,10 +11,8 @@ import math
 import numpy as np
 import torch
 import torch.nn.functional as F
-from torch import nn
 import matplotlib.pyplot as plt
 from matplotlib import cm
-from tqdm import tqdm
 
 def beta_schedule(T, start=1e-4, end=0.02, scale= 1.0, cosine=False, exp_biasing=False, exp_bias_factor=1):
     """
@@ -95,15 +93,6 @@ class DiffusionSampler():
             x_0 = torch.sqrt(get_index_from_list(self.alphas, t, x_0.shape)) * x_0.to(device)\
             + torch.sqrt(get_index_from_list(1-self.alphas, t, x_0.shape)) * noise.to(device)
 
-        # sqrt_alphas_cumprod_t_current = get_index_from_list(self.sqrt_alphas_cumprod, t_current, x_0.shape)
-        # sqrt_one_minus_alphas_cumprod_t_current = get_index_from_list(
-        #     self.sqrt_one_minus_alphas_cumprod, t_current, x_0.shape
-        # )
-        # sqrt_alphas_cumprod_t_final = get_index_from_list(self.sqrt_alphas_cumprod, t_final, x_0.shape)
-        # sqrt_one_minus_alphas_cumprod_t_final = get_index_from_list(
-        #     self.sqrt_one_minus_alphas_cumprod, t_final, x_0.shape
-        # )
-        # mean + variance
         return x_0, noise.to(device)
     
     def plot_sqrt_alpha_vs_t(self, x_0, t, device="cpu"):
@@ -120,20 +109,6 @@ class DiffusionSampler():
             self.sqrt_one_minus_alphas_cumprod, torch.tensor([i]), x_0.shape
             )))
             cumprods_sum.append(cumprods[-1]+cumprods_m_one[-1])
-        plt.plot(cumprods, label="sqrt_alphas_cumprod")
-        plt.plot(cumprods_m_one, label="sqrt_one_minus_alphas_cumprod")
-        plt.plot(cumprods_sum, label="sum")
-        plt.legend()
-        plt.show()
-        # noise = torch.randn_like(x_0).to(device)
-        # sqrt_alphas_cumprod_t = get_index_from_list(self.sqrt_alphas_cumprod, t, x_0.shape)
-        # sqrt_one_minus_alphas_cumprod_t = get_index_from_list(
-        #     self.sqrt_one_minus_alphas_cumprod, t, x_0.shape
-        # )
-
-        # mean + variance
-        # return sqrt_alphas_cumprod_t.to(device) * x_0.to(device)\
-        # + sqrt_one_minus_alphas_cumprod_t.to(device) * noise.to(device), noise.to(device)
 
     def diffusion_step_sample(self, noise_pred, x_noisy,  t, device="cpu"):
         """ 
@@ -199,13 +174,6 @@ class DiffusionSampler():
                 t_mask = ((t != 0).float().view(-1, *([1] * (len(x.shape) - 1)))).to(device) 
             
             return model_mean + torch.sqrt(posterior_variance_t) * torch.randn_like(x) * t_mask
-
-
-            # if t == 0:
-            #     return model_mean
-            # else:
-            #     noise = torch.randn_like(x)
-            #     return model_mean + torch.sqrt(posterior_variance_t) * noise
     
     def sample_timestep_masked(self, model, x, gt, t, mask):
         # Implements the RePaint sampling procedure to produce an inpainted image based on a known part of the image and a mask.
@@ -251,14 +219,12 @@ class DiffusionSampler():
                 torch.manual_seed(seed)
             
             dims = gt.shape
-            # print(dims)
             image = torch.randn(dims, device=device) # initial image
             x_batch = image.shape[0]
 
             for i in range(T)[::-1]:
                 t = torch.full((x_batch,), i, device=device, dtype=torch.long)
                 if i == T-1:
-                    # print("timestep", i)
                     image = self.sample_timestep(model, image, t)
                 else:
                     image = self.sample_timestep_masked(model, image, gt, t, mask)
@@ -285,54 +251,25 @@ class DiffusionSampler():
             dims = gt.shape
             image = torch.randn(dims, device=device) # initial image
             x_batch = image.shape[0]
-
-            # # print(999)
-            # t = torch.full((x_batch,), 999, device=device, dtype=torch.long)
-            # image = self.sample_timestep(model, image, t)
-            # for i in range(jump, T-1-100, jump):
-            #     # print(999-i)
-            #     t = torch.full((x_batch,), 999-i, device=device, dtype=torch.long)
-
-            #     image = self.sample_timestep_masked(model, image, gt, t, mask)
-
-            #     for j in range(N):
-            #         # t = torch.full((x_batch,), i, device=device, dtype=torch.long)
-            #         # print("backward", i-j)
-                    
-            #         # print(999-i-jump)
-            #         image = self.sample_timestep_masked(model, image, gt, t-jump, mask)
-            #         # print(999-i)
-            #         image = self.forward_diffusion_sample_partial(image, t-jump, t, device)[0]
-                   
- 
             for i in range(25, T-1, jump)[::-1]:
-                # print(i)
                 for k in range(jump)[::-1]:
                     t = torch.full((x_batch,), i+k, device=device, dtype=torch.long)
                     if i == T-1:
-                        # print("timestep", i)
                         image = self.sample_timestep(model, image, t)
                     else:
                         image = self.sample_timestep_masked(model, image, gt, t, mask)
 
                 for j in range(N):
                     t = torch.full((x_batch,), i, device=device, dtype=torch.long)
-                    # print("backward", i-j)
                     if i == T-1:
-                        # print("timestep", i)
                         image = self.sample_timestep(model, image, t)
                     else:
                         image = self.sample_timestep_masked(model, image, gt, t, mask)
                     image = self.forward_diffusion_sample_partial(image, t, t+1, device)[0]
-                # np.save("run_107_batch_1_step_{}.npy".format(i), image.cpu().numpy())
-
-                
 
             for i in range(0, 25)[::-1]:
-                # print(i)
                 t = torch.full((x_batch,), i, device=device, dtype=torch.long)
                 if i == T-1:
-                    # print("timestep", i)
                     image = self.sample_timestep(model, image, t)
                 else:
                     image = self.sample_timestep_masked(model, image, gt, t, mask)
@@ -356,14 +293,12 @@ class DiffusionSampler():
                 torch.manual_seed(seed)
             
             dims = gt.shape
-            # print(dims)
             image = gt
             x_batch = image.shape[0]
 
             for i in range(T[0],T[1])[::-1]:
                 t = torch.full((x_batch,), i, device=device, dtype=torch.long)
                 if i == T[1]-1:
-                    # print("timestep", i)
                     image = self.sample_timestep(model, image, t)
                 else:
                     image = self.sample_timestep_masked(model, image, gt, t, mask)
@@ -386,14 +321,12 @@ class DiffusionSampler():
                 torch.manual_seed(seed)
             
             dims = gt.shape
-            # print(dims)
             image = torch.randn(dims, device=device) # initial image
             x_batch = image.shape[0]
 
             for i in range(0,T)[::-1]:
                 t = torch.full((x_batch,), i, device=device, dtype=torch.long)
                 if i == T-1:
-                    # print("timestep", i)
                     image = self.sample_timestep(model, image, t)
                 else:
                     image = self.sample_timestep_masked(model, image, gt, t, mask)
@@ -425,14 +358,12 @@ class DiffusionSampler():
                 torch.manual_seed(seed)
             
             dims = gt.shape
-            # print(dims)
             image = torch.randn(dims, device=device) # initial image
             x_batch = image.shape[0]
 
             for i in range(0,T)[::-1]:
                 t = torch.full((x_batch,), i, device=device, dtype=torch.long)
                 if i == T-1:
-                    # print("timestep", i)
                     image = self.sample_timestep(model, image, t)
                 else:
                     image = self.sample_timestep_masked(model, image, gt, t, mask)
