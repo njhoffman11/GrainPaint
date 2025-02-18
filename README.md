@@ -3,7 +3,7 @@ The dataset used to train GrainPaint is available at https://zenodo.org/record/8
 # Installation
 1. Clone the repository
 2. Create and activate a new python environment. 
-3. Run `pip install -r requirements.txt` to install the rest of the dependencies.
+3. Run `pip install -r requirements.txt` to install the dependencies.
 # Training
 We provide the modeles we used in our paper in the model_chekpoints folder, so training a model is not necessary if you want to use one of our pre-trained models. 
 A model can be trained using train_ddm_diffusers32.ipynb
