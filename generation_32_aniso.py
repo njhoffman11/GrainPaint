@@ -264,10 +264,12 @@ def create_new_input(processed_results, joined_extended, curr_batch, nxt_batch, 
 ddm_load_path = "model_checkpoints/ddm32_big_250.ckpt"
 if __name__ == '__main__':
 
+    # choose numbers to label the runs of the model with. This will create a new directory
+    # for each run. The script will error if the directory already exists!
     for run_num in range(238,239):
     
         os.mkdir('run_{}'.format(run_num))
-        window_size = 32 #block size, n.b. only controls the plan
+        window_size = 32 # block size, n.b. this only controls the plan
 
         # If the plan takes a long time to generate, which may happen if the plan is large,
         # you can save the plan to a file and load it later.
