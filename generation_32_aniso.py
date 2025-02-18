@@ -266,7 +266,7 @@ if __name__ == '__main__':
 
     # choose numbers to label the runs of the model with. This will create a new directory
     # for each run. The script will error if the directory already exists!
-    for run_num in range(238,239):
+    for run_num in range(239,240):
     
         os.mkdir('run_{}'.format(run_num))
         window_size = 32 # block size, n.b. this only controls the plan
