@@ -12,5 +12,5 @@ A batch size of 8 fits in 24GB of memory, if you have less you should reduce bat
 Microstructures can be generated using generation_32_aniso.py. 
 ddm_load_path stores the path to the pre-trained model to be loaded. 
 ddm32_big_250.ckpt is the model trained on isotropic grain structures, ddm32_big_250_aniso.ckpt is the model trained on anisotropic grain structures.
-tile_gen5.py creates a checkerboard-like generation plan and is suggested for isotropic microstructures, tile_gen6.py creates a center-out generation plan and is suggested for anisotropic microstructures.
-To switch tile_gen scripts, change the import in generation_32_aniso.py.
+We provide a generation_plan variable in generation_32_aniso.py that can be used to switch the generation plan between 'grid' and 'center'
+'grid' is recommended for isotropic microstructures, 'center' is recommended for anisotropic microstructures.
