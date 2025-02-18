@@ -59,12 +59,15 @@ def plot_cubes(batches, window_size, lims):
                  [vertices[j] for j in [2, 3, 7, 6]]]
 
         # Create a 3D Polygon object
-        face_collection = Poly3DCollection(faces, facecolors=color, edgecolors='r', linewidths=1.0, linestyle='-', alpha=0.4)
+        face_collection = Poly3DCollection(faces, facecolors=color, edgecolors='r', linewidths=1.0, linestyle='-', alpha=0.3)
         ax.add_collection3d(face_collection)
 
     # Color based on the batch, and draw cubes
     for i, batch in enumerate(batches):
-        color = plt.cm.jet(i/len(batches))
+        if i < len(batches) - 1:
+            color = plt.cm.jet(140)
+        else:
+            color = plt.cm.jet(0)   
         for tile in batch:
             position = np.array([tile.x, tile.y, tile.z]) * window_size / 2
             draw_cube(position, ax, color)
@@ -443,23 +446,23 @@ def batch_to_coords(batch, window_size):
 # helical 280,280,150
 # turbo-blade 320, 320, 150
 
-# generate a plan with of 32x32x32 cubes
-# lims = (80, 80, 80)
-# window_size = 32
-# batches = gen_center(lims, window_size, 32)
+if __name__ == '__main__':
 
-# print(len(batches))
+    # generate a plan with of 32x32x32 cubes
+    lims = (80, 80, 80)
+    window_size = 32
+    batches = gen_grid(lims, window_size, 32)
 
-# # save the plan (useful when generating large plans)
-# with open('turbo-blade_batches.pickle', 'wb') as handle:
-#     pickle.dump(batches, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    # save the plan (useful when generating large plans)
+    # with open('turbo-blade_batches.pickle', 'wb') as handle:
+    #     pickle.dump(batches, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-# # to plot plan
-# plot_cubes(batches, window_size=window_size, lims=(lims[0]+window_size, lims[1]+window_size, lims[2]+window_size))
-
-# all_batches = []
-# for batch in batches:
-#     for coord in batch_to_coords(batch, window_size):
-#         all_batches.append(coord)
-# max_coord = np.array(all_batches).max(axis=0)+32
-# print(max_coord)
+    # to plot plan
+    plot_cubes(batches, window_size=window_size, lims=(lims[0]+window_size, lims[1]+window_size, lims[2]+window_size))
+    print("Number of Batches:", len(batches))
+    all_batches = []
+    for batch in batches:
+        for coord in batch_to_coords(batch, window_size):
+            all_batches.append(coord)
+    max_coord = np.array(all_batches).max(axis=0)+32
+    print("Maximum Coordinate:", max_coord)

@@ -1,6 +1,7 @@
 numpy
 matplotlib
-diffusers[torch]
+diffusers[torch] == 0.19.3
 vtk
 scikit-learn
 tqdm
+huggingface_hub == 0.25.0

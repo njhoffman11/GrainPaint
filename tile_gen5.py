@@ -178,137 +178,6 @@ def checker3_1(tile_list, pt2, shape):
                         tile_list[-1].add_dependency(tile)
     return tile_list
 
-def place_center(shape):
-    return [Tile(floor(shape[0]*.5), floor(shape[1]*.5), floor(shape[2]*.5))]
-
-def gen_corners(tile_list, shape):
-    center = tile_list[0]
-    tile_list.append(Tile(center.x+1.5, center.y+1.5, center.z+1.5))
-    tile_list[-1].add_dependency(center)
-    tile_list.append(Tile(center.x-1.5, center.y+1.5, center.z+1.5))
-    tile_list[-1].add_dependency(center)
-    tile_list.append(Tile(center.x+1.5, center.y-1.5, center.z+1.5))
-    tile_list[-1].add_dependency(center)
-    tile_list.append(Tile(center.x-1.5, center.y-1.5, center.z+1.5))
-    tile_list[-1].add_dependency(center)
-    tile_list.append(Tile(center.x+1.5, center.y+1.5, center.z-1.5))
-    tile_list[-1].add_dependency(center)
-    tile_list.append(Tile(center.x-1.5, center.y+1.5, center.z-1.5))
-    tile_list[-1].add_dependency(center)
-    tile_list.append(Tile(center.x+1.5, center.y-1.5, center.z-1.5))
-    tile_list[-1].add_dependency(center)
-    tile_list.append(Tile(center.x-1.5, center.y-1.5, center.z-1.5))
-    tile_list[-1].add_dependency(center)
-    return tile_list
-
-def gen_cross(tile_list, shape):
-    center = tile_list[0]
-    prev_batch = tile_list[1:]
-    tile_list.append(Tile(center.x+1.5, center.y, center.z))
-    for tile in prev_batch:
-        if tile.x == center.x+1.5:
-            tile_list[-1].add_dependency(tile)
-    tile_list.append(Tile(center.x-1.5, center.y, center.z))
-    for tile in prev_batch:
-        if tile.x == center.x-1.5:
-            tile_list[-1].add_dependency(tile)
-    tile_list.append(Tile(center.x, center.y+1.5, center.z))
-    for tile in prev_batch:
-        if tile.y == center.y+1.5:
-            tile_list[-1].add_dependency(tile)
-    tile_list.append(Tile(center.x, center.y-1.5, center.z))
-    for tile in prev_batch:
-        if tile.y == center.y-1.5:
-            tile_list[-1].add_dependency(tile)
-    tile_list.append(Tile(center.x, center.y, center.z+1.5))
-    for tile in prev_batch:
-        if tile.z == center.z+1.5:
-            tile_list[-1].add_dependency(tile)
-    tile_list.append(Tile(center.x, center.y, center.z-1.5))
-    for tile in prev_batch:
-        if tile.z == center.z-1.5:
-            tile_list[-1].add_dependency(tile)
-    return tile_list
-
-def gen_diags(tile_list, shape):
-    center = tile_list[0]
-    prev_batch = tile_list[1:]
-    tile_list.append(Tile(center.x+1.5, center.y+1.5, center.z))
-    for tile in prev_batch:
-        if tile.x == center.x+1.5 or tile.y == center.y+1.5:
-            tile_list[-1].add_dependency(tile)
-    tile_list.append(Tile(center.x-1.5, center.y+1.5, center.z))
-    for tile in prev_batch:
-        if tile.x == center.x-1.5 or tile.y == center.y+1.5:
-            tile_list[-1].add_dependency(tile)
-    tile_list.append(Tile(center.x+1.5, center.y-1.5, center.z))
-    for tile in prev_batch:
-        if tile.x == center.x+1.5 or tile.y == center.y-1.5:
-            tile_list[-1].add_dependency(tile)
-    tile_list.append(Tile(center.x-1.5, center.y-1.5, center.z))
-    for tile in prev_batch:
-        if tile.x == center.x-1.5 or tile.y == center.y-1.5:
-            tile_list[-1].add_dependency(tile)
-    tile_list.append(Tile(center.x+1.5, center.y, center.z+1.5))
-    for tile in prev_batch:
-        if tile.x == center.x+1.5 or tile.z == center.z+1.5:
-            tile_list[-1].add_dependency(tile)
-    tile_list.append(Tile(center.x-1.5, center.y, center.z+1.5))
-    for tile in prev_batch:
-        if tile.x == center.x-1.5 or tile.z == center.z+1.5:
-            tile_list[-1].add_dependency(tile)
-    tile_list.append(Tile(center.x+1.5, center.y, center.z-1.5))
-    for tile in prev_batch:
-        if tile.x == center.x+1.5 or tile.z == center.z-1.5:
-            tile_list[-1].add_dependency(tile)
-    tile_list.append(Tile(center.x-1.5, center.y, center.z-1.5))
-    for tile in prev_batch:
-        if tile.x == center.x-1.5 or tile.z == center.z-1.5:
-            tile_list[-1].add_dependency(tile)
-    tile_list.append(Tile(center.x, center.y+1.5, center.z+1.5))
-    for tile in prev_batch:
-        if tile.y == center.y+1.5 or tile.z == center.z+1.5:
-            tile_list[-1].add_dependency(tile)
-    tile_list.append(Tile(center.x, center.y-1.5, center.z+1.5))
-    for tile in prev_batch:
-        if tile.y == center.y-1.5 or tile.z == center.z+1.5:
-            tile_list[-1].add_dependency(tile)
-    tile_list.append(Tile(center.x, center.y+1.5, center.z-1.5))
-    for tile in prev_batch:
-        if tile.y == center.y+1.5 or tile.z == center.z-1.5:
-            tile_list[-1].add_dependency(tile)
-    tile_list.append(Tile(center.x, center.y-1.5, center.z-1.5))
-    for tile in prev_batch:
-        if tile.y == center.y-1.5 or tile.z == center.z-1.5:
-            tile_list[-1].add_dependency(tile)
-    return tile_list
-
-def gen_center(shape_px, window_size, max_batch):
-    window_size = window_size
-    max_batch = max_batch
-
-    x_len_pixels, y_len_pixels, z_len_pixels = shape_px
-    multiple = window_size/2
-    x_len_round = multiple *ceil(x_len_pixels / multiple)
-    y_len_round = multiple *ceil(y_len_pixels / multiple)
-    z_len_round = multiple *ceil(z_len_pixels / multiple)
-    shape = (round((x_len_round-16)/16), round((y_len_round-16)/16), round((z_len_round-16)/16))
-    # tile_list = checker1(shape)
-    tile_list = place_center(shape)
-    tile_list = gen_corners(tile_list, shape)
-    # tile_list = gen_cross(tile_list, shape)
-    # tile_list = gen_diags(tile_list, shape)
-
-    existing_tiles = []
-    batches = []
-    # batches.append([initial_tile])
-    while True:
-        batch, existing_tiles = get_next_tiles(tile_list, existing_tiles, max_batch)
-        if not batch:
-            break
-        batches.append(batch)
-    return batches
-
 def gen_grid(shape_px, window_size, max_batch):
     window_size = window_size
     max_batch = max_batch
@@ -374,21 +243,22 @@ def batch_to_coords(batch, window_size):
 # helical 280,280,150
 # turbo-blade 320, 320, 150
 
-# # generate a plan with of 32x32x32 cubes
-# lims = (100, 100, 100)
-# window_size = 32
-# batches = gen_grid(lims, window_size, 32)
+if __name__ == "__main__":
+    # generate a plan with of 32x32x32 cubes
+    lims = (80, 80, 80)
+    window_size = 32
+    batches = gen_grid(lims, window_size, 32)
 
-# # save the plan (useful when generating large plans)
-# with open('turbo-blade_batches.pickle', 'wb') as handle:
-#     pickle.dump(batches, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    # save the plan (useful when generating large plans)
+    # with open('turbo-blade_batches.pickle', 'wb') as handle:
+    #     pickle.dump(batches, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-# # to plot plan
-# plot_cubes(batches, window_size=window_size, lims=(lims[0]+window_size, lims[1]+window_size, lims[2]+window_size))
-
-# all_batches = []
-# for batch in batches:
-#     for coord in batch_to_coords(batch, window_size):
-#         all_batches.append(coord)
-# max_coord = np.array(all_batches).max(axis=0)+32
-# print(max_coord)
+    # to plot plan
+    plot_cubes(batches, window_size=window_size, lims=(lims[0]+window_size, lims[1]+window_size, lims[2]+window_size))
+    print("Number of Batches:", len(batches))
+    all_batches = []
+    for batch in batches:
+        for coord in batch_to_coords(batch, window_size):
+            all_batches.append(coord)
+    max_coord = np.array(all_batches).max(axis=0)+32
+    print("Maximum Coordinate:", max_coord)

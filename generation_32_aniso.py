@@ -103,7 +103,7 @@ def main(rank, world_size, joined_extended, batches, run_num):
     torch.cuda.set_device(rank)
     # Load model
     # model = torch.load(ddm_load_path, map_location='cpu') # for cpu benchmark
-    model = torch.load(ddm_load_path, map_location='cuda:'+str(rank))
+    model = torch.load(ddm_load_path, map_location='cuda:'+str(rank), weights_only=False)
     
     num_iterations = len(batches)
     
@@ -122,7 +122,7 @@ def main(rank, world_size, joined_extended, batches, run_num):
         start_time = time()
 
     for i in range(num_iterations):
-        print("Rank", rank, "Iteration", i+1)
+        print("Rank", rank, "Batch", i+1)
         # Check the batch size
 
         # Distribute data to all processes
@@ -218,8 +218,8 @@ def create_new_input(processed_results, joined_extended, curr_batch, nxt_batch, 
                         coords[j][2]:coords[j][2]+window_size] += processed_results[j,0,:,:,:].cpu().numpy()*reverse_mask
         
         plt.imshow(joined_extended[:,:,round(joined_extended.shape[2]/2)])
-        plt.savefig('run_{}/run_{}_batch_{}.png'.format(run_num, run_num, batch_num))
-        np.save('run_{}/run_{}_batch_{}.npy'.format(run_num, run_num, batch_num), joined_extended)
+        plt.savefig('run_{}/run_{}_batch_{}.png'.format(run_num, run_num, batch_num+1))
+        np.save('run_{}/run_{}_batch_{}.npy'.format(run_num, run_num, batch_num+1), joined_extended)
     # plt.close()
 
     if nxt_batch is None:
@@ -260,6 +260,8 @@ def create_new_input(processed_results, joined_extended, curr_batch, nxt_batch, 
     return sample_corrupt, mask, joined_mask
 
 ddm_load_path = "model_checkpoints/ddm32_big_250.ckpt"
+# for the anisotropic model, use
+# ddm_load_path = "model_checkpoints/ddm32_big_250_aniso.ckpt"
 if __name__ == '__main__':
 
     # choose numbers to label the runs of the model with. This will create a new directory
@@ -278,7 +280,13 @@ if __name__ == '__main__':
         # the actual area will be larger. You can check the actual area by
         # running the plotting functions in tile_gen6.py
         lims = (80,80,80) 
-        batches = tile_gen.gen_center(lims, window_size, 24)
+
+        generation_plan = 'grid' # 'grid' or 'center', grid recommended for isotrpic,
+        # center recommended for anisotropic
+        if generation_plan == 'center':
+            batches = tile_gen.gen_center(lims, window_size, 24)
+        elif generation_plan == 'grid':
+            batches = tile_gen.gen_grid(lims, window_size, 24)
         # print(batches)
         all_batches = []
         for batch in batches:
