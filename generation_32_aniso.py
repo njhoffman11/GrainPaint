@@ -1,17 +1,10 @@
 import torch 
 import numpy as np 
 import tile_gen6 as tile_gen
-from tile_gen6 import Tile
 from matplotlib import pyplot as plt   
 import os
-
-import importlib
-import ddm_utils
-# importlib.reload(ddm_utils)
 from ddm_utils import DiffusionSampler, beta_schedule
-
 import torch.distributed as dist
-import os 
 from time import time
 
 ## Schedule Parameters
@@ -23,8 +16,6 @@ cosine = False # Use cosine schedule
 exp_biasing = False # Use exponential schedule
 exp_biasing_factor = 1 # Exponential schedule factor (used if exp_biasing=True)
 ##
-
-# Choose a variance schedule
 
 betas = beta_schedule(T=T, start=start, end=end,
                        scale= 1.0, cosine=cosine, 
@@ -42,8 +33,6 @@ def split_data_for_devices(data, num_devices):
 
     return batches
 
-
-
 def run(rank, size, model, sample_corrupt, mask, iteration):
     # Set up device
     device = torch.device(f"cuda:{rank}")
@@ -56,10 +45,6 @@ def run(rank, size, model, sample_corrupt, mask, iteration):
 
     local_sample = local_sample.to(device)
     local_mask = local_mask.to(device)
-    # Evaluate
-    # if iteration == 0:
-    #     output = ddm_sampler.generate_sample(model, local_sample, T=100, mask=local_mask, seed=None)
-    # else:
     output = ddm_sampler.generate_sample_resample(model, local_sample, T=250, mask=local_mask, seed=None)
     # Gather results (optional)
 
@@ -84,7 +69,6 @@ def run(rank, size, model, sample_corrupt, mask, iteration):
 
         dist.gather(padded_output, dst=0)
 
-
 def init_process(rank, world_size):
     # If you are running on multipule GPUs and the script does not exit properly,
     # you may need to set a different MASTER_PORT before running again.
@@ -92,7 +76,6 @@ def init_process(rank, world_size):
     os.environ['MASTER_ADDR'] = 'localhost'
     os.environ['MASTER_PORT'] = '12354'
     dist.init_process_group("nccl", rank=rank, world_size=world_size)
-
 
 def main(rank, world_size, joined_extended, batches, run_num):
     window_size = 32
@@ -117,7 +100,6 @@ def main(rank, world_size, joined_extended, batches, run_num):
         broadcast_list = [sample_corrupt, mask]
     dist.broadcast_object_list(broadcast_list, 0)
     sample_corrupt, mask = broadcast_list
-    # print("rank", rank, "received", sample_corrupt.shape, mask.shape)
     if rank == 0:
         start_time = time()
 
@@ -134,10 +116,6 @@ def main(rank, world_size, joined_extended, batches, run_num):
         else:
             gathered_results = run(rank, size, model, sample_corrupt_batches, mask_batches, i)
             # Gather the results at rank 0
-            # gathered_results = [torch.zeros_like(results) for _ in range(size)]
-            # print("gathered")
-            # dist.gather(results, gather_list=gathered_results, dst=0)
-            # print("dist_gathered")
             # Process results and create new data for next iteration
             if i == num_iterations - 1:
                 sample_corrupt, mask, joined_mask = create_new_input(gathered_results, joined_extended, batches[i], None, i, joined_mask, run_num)
@@ -148,7 +126,6 @@ def main(rank, world_size, joined_extended, batches, run_num):
             print(f"Iteration {i + 1} results shape: {gathered_results.shape}")
         dist.broadcast_object_list(broadcast_list, 0)
         sample_corrupt, mask = broadcast_list
-        # print("rank", rank, "received", sample_corrupt.shape, mask.shape)
 
     if rank == 0:
         elapsed_time = time() - start_time
@@ -163,18 +140,9 @@ def create_new_input(processed_results, joined_extended, curr_batch, nxt_batch, 
     
     if curr_batch is not None:
         coords = tile_gen.batch_to_coords(curr_batch, window_size)
-        # if batch_num == 0:
-        #     old_data = np.load('run_103_batch_0.npy')
-        #     processed_results = []
-        #     for j in range(len(coords)):
-        #         processed_results.append(old_data[coords[j][0]:coords[j][0]+window_size, 
-        #                                             coords[j][1]:coords[j][1]+window_size, 
-        #                                             coords[j][2]:coords[j][2]+window_size])
-        #     processed_results = torch.tensor(processed_results).unsqueeze(1)
         processed_results = processed_results.cpu().numpy()
 
         # Iterate over each 3D tensor slice
-
         for j in range(len(coords)):
             # Get the current 3D tensor slice
             img = processed_results[j,0,:,:,:]
@@ -183,13 +151,10 @@ def create_new_input(processed_results, joined_extended, curr_batch, nxt_batch, 
             threshold = (img.min() + img.max()) / 2.0
 
             # Check if image is unconditioned
-         
             if joined_mask[coords[j][0]:coords[j][0]+window_size, 
                                        coords[j][1]:coords[j][1]+window_size, 
                                        coords[j][2]:coords[j][2]+window_size].sum() == 0:
                 img -= threshold
-            # img[img <= threshold] = 0
-            # img[img > threshold] = 1
             
             # Update the processed_results tensor
             processed_results[j,0,:,:,:] = img
@@ -204,7 +169,6 @@ def create_new_input(processed_results, joined_extended, curr_batch, nxt_batch, 
             reverse_mask = joined_mask[coords[j][0]:coords[j][0]+window_size, 
                                        coords[j][1]:coords[j][1]+window_size, 
                                        coords[j][2]:coords[j][2]+window_size] == 0
-            # print(coords[j][0],coords[j][0]+window_size, coords[j][1],coords[j][1]+window_size, coords[j][2],coords[j][2]+window_size)
             joined_extended[coords[j][0]:coords[j][0]+window_size, 
                             coords[j][1]:coords[j][1]+window_size, 
                             coords[j][2]:coords[j][2]+window_size]*=np.invert(reverse_mask)
@@ -220,7 +184,6 @@ def create_new_input(processed_results, joined_extended, curr_batch, nxt_batch, 
         plt.imshow(joined_extended[:,:,round(joined_extended.shape[2]/2)])
         plt.savefig('run_{}/run_{}_batch_{}.png'.format(run_num, run_num, batch_num+1))
         np.save('run_{}/run_{}_batch_{}.npy'.format(run_num, run_num, batch_num+1), joined_extended)
-    # plt.close()
 
     if nxt_batch is None:
         return None, None, None
@@ -238,10 +201,7 @@ def create_new_input(processed_results, joined_extended, curr_batch, nxt_batch, 
                                                                               coords[j][2]:coords[j][2]+window_size]*mask_list[-1].cpu().numpy())
         mask = torch.stack(mask_list, dim=0).unsqueeze(1)
         sample_corrupt = torch.cat(sample_corrupt_list, dim=0)
-        # batch_size = 15
     
-    # mask = torch.zeros((batch_size, 1, 16, 16, 16))
-    # sample_corrupt = torch.randn((batch_size, 1, 16, 16, 16))
     batch_size = sample_corrupt.size(0)
     world_size = dist.get_world_size()
     # If batch size is smaller than the number of GPUs
@@ -260,8 +220,6 @@ def create_new_input(processed_results, joined_extended, curr_batch, nxt_batch, 
     return sample_corrupt, mask, joined_mask
 
 ddm_load_path = "model_checkpoints/ddm32_big_250.ckpt"
-# for the anisotropic model, use
-# ddm_load_path = "model_checkpoints/ddm32_big_250_aniso.ckpt"
 if __name__ == '__main__':
 
     # choose numbers to label the runs of the model with. This will create a new directory
@@ -301,5 +259,3 @@ if __name__ == '__main__':
         # world_size = 1
         print("Generation plan has", len(batches), "iterations")
         torch.multiprocessing.spawn(main, args=(world_size, joined_extended, batches, run_num), nprocs=world_size, join=True)
-
-
