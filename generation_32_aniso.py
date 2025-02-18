@@ -5,8 +5,6 @@ from tile_gen6 import Tile
 from matplotlib import pyplot as plt   
 import os
 
-
-
 import importlib
 import ddm_utils
 # importlib.reload(ddm_utils)
