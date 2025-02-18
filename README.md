@@ -14,3 +14,4 @@ ddm_load_path stores the path to the pre-trained model to be loaded.
 ddm32_big_250.ckpt is the model trained on isotropic grain structures, ddm32_big_250_aniso.ckpt is the model trained on anisotropic grain structures.
 We provide a generation_plan variable in generation_32_aniso.py that can be used to switch the generation plan between 'grid' and 'center'
 'grid' is recommended for isotropic microstructures, 'center' is recommended for anisotropic microstructures.
+You will need to update the range for run_num when running the script multiple times.
