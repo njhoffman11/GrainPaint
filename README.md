@@ -3,7 +3,7 @@ This is the repository for our article "GrainPaint: A multi-scale diffusion-base
 The dataset used to train GrainPaint is available at https://zenodo.org/record/8241535
 # Update From Publication
 We have pushed new trained models not discussed in our publication. These models are faster than the original models with the same output quality. 
-In our testing, the new models are about 5 times faster than the old models. The new models and the associated testing and training scrips have small in their names.
+In our testing, the new models are about 5 times faster than the old models. The new models and the associated testing and training scripts have small in their names.
 
 # Installation
 1. Clone the repository.
